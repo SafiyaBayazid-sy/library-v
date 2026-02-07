@@ -11,8 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->string('cover')->nullable()->after('mortgage');
+        Schema::create('waiting_lists', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('customer_id')->constrained();
+            $table->foreignId('book_id')->constrained()->nullable()->default(null);
+            $table->timestamps();
         });
     }
 
@@ -21,8 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('books', function (Blueprint $table) {
-            $table->dropColumn('cover');
-        });
+        Schema::dropIfExists('waiting_lists');
     }
 };

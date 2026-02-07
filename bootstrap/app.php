@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\UserTypeMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -14,7 +15,8 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         // global middleware
         $middleware->statefulApi();
-        
+
+        $middleware->alias(['user-type'=> UserTypeMiddleware::class]);
         // middleware for "api" routes
         $middleware->appendToGroup('api', App\Http\Middleware\LangMiddleware::class);
     })

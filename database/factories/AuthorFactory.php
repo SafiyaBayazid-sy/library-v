@@ -18,6 +18,9 @@ class AuthorFactory extends Factory
     {
         return [
             'name' => $this->faker->name(),
+            'country' => $this->faker->country(),
+                'birth_date' => $this->faker->date(),
+
         ];
     }
 }

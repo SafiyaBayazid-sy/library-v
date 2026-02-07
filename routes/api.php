@@ -11,37 +11,27 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
-/** api/test */
-Route::get('test' , function(){
-    return "I am for test only";
-});
-Route::get('test/{x}' , function($x1){
-    return "I am for test only: $x1";
-});
-
-// Route::get('categories' , ['App\Http\Controllers\Api\CategoryController' , 'index']);
-Route::get('categories' , [CategoryController::class,  'index']);
-Route::post('categories' , [CategoryController::class,  'store']);
-Route::put('categories/{identifier}' , [CategoryController::class,  'update']);
-Route::delete('categories/{id}' , [CategoryController::class,  'destroy']);
-
 Route::post('login', [ِAuthController::class , 'login']);
+Route::post('register', [ِAuthController::class , 'register']);
 
-
-// Route::apiResource('books' , BookController::class)->except('show');
-// Route::apiResource('books' , BookController::class)->only('index' ,'show');
-Route::apiResource('books' , BookController::class);
-Route::apiResource('authors' , AuthorController::class);
-
-
-/** **************** test routes ***************/
-Route::get('env' , function(){
-    return env('APP_NAME' , 'not found');
+// Protected routes
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('logout', [ِAuthController::class, 'logout']);
 });
 
-Route::get('config' , function(){
-    return config('app.name' , 'not found');
+
+
+Route::middleware(['auth:sanctum', 'user-type:admin'])->group(function () {
+    Route::apiResource('books', BookController::class);
+    Route::apiResource('authors', AuthorController::class);
+    Route::apiResource('categories', CategoryController::class);
 });
-Route::get('public-path' , function(){
-    return storage_path('app/public');
-});
+
+   Route::apiResource('books', BookController::class)->except(['store','update','destroy']);
+   Route::apiResource('authors', AuthorController::class)->except(['store','update','destroy']);
+   Route::apiResource('categories', CategoryController::class)->except(['store','update','destroy']);
+
+
+Route::get('/sanctum/csrf-cookie', function (Request $request) {
+    return response()->noContent();
+})->middleware('web');

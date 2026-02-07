@@ -15,24 +15,27 @@ class ِAuthController extends Controller
         $validated = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'unique:users'],
-            'password' => ['required', 'confirmed', 'min:8'],            
+            'password' => ['required', 'confirmed', 'min:8'],
+            'type'  =>['required','in:admin,customer']
         ]);
         $user = User::create($validated);
         $remember = $request->boolean('remember');
-       
+
         Auth::login($user , $remember  );
 
         $request->session()->regenerate();
 
         return ResponseHelper::success("تم تسجيل الحساب بنجاح");
     }
-    
+
     function login(Request $request){
           $credentials = $request->validate([
             'email'    => ['required', 'email'],
-            'password' => ['required'],            
+            'password' => ['required'],
         ]);
-        if ( ! Auth::attempt($credentials ,    ))
+                $remember = $request->boolean('remember');
+
+        if ( ! Auth::attempt($credentials ,  $remember  ))
             throw ValidationException::withMessages(['email' => 'معلومات التوثق غير صحيحة']);
 
         $request->session()->regenerate();
@@ -48,5 +51,5 @@ class ِAuthController extends Controller
 
     }
 
-    
+
 }
