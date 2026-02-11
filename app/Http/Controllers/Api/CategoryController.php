@@ -16,11 +16,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // $categories =  Category::all();
-        // $categories =  Category::withAvg('books' , 'price')->get();
         $categories =  Category::withCount('books')->get();
-
-        //    return ResponseHelper::success(trans('library.all-categories'),$categories);
         return ResponseHelper::success(__('library.all-categories'), $categories);
     }
 
@@ -67,7 +63,7 @@ class CategoryController extends Controller
             $file = $request->file('image');
             $filename = time() . '_' . $file->getClientOriginalName();
             Storage::putFileAs('category-images', $file, $filename);
-            if ($category->image)                
+            if ($category->image)
                 Storage::delete("category-images/$category->image");
             // حفظ اسم الملف في قاعدة البيانات
             $category->image = $filename;
@@ -80,20 +76,26 @@ class CategoryController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id)
-    {        
+    {
         $category = Category::findorfail($id);
-        
+
         // التحقق من وجود كتب مرتبطة بالصنف
         $booksCount = $category->books()->count();
         if ($booksCount > 0) {
             return ResponseHelper::failed("لا يمكن حذف الصنف لوجود $booksCount كتاب مرتبط به");
         }
 
-        if ($category->image)                
+        if ($category->image)
                 Storage::delete("category-images/$category->image");
 
 
         $category->delete();
         return ResponseHelper::success("تم حذف الصنف");
+    }
+
+
+     public function show(Category $category)
+    {
+        return ResponseHelper::success("عرض بيانات الصنف", $category);
     }
 }

@@ -39,12 +39,14 @@ class AuthorController extends Controller
      */
     public function update(Request $request, Author $author)
     {
-        $request->validate([
-            'name' => "required|max:70"
-        ]);
 
-        $author->name = $request->name;
-        $author->save();
+      $validated=   $request->validate([
+    'name' => 'required|string|max:70',
+    'birth_date' => 'nullable|date|before:today',
+    'country' => 'nullable|string|max:100'
+]);
+
+         $author->update($validated);
 
         return ResponseHelper::success("تم تعديل المؤلف", $author);
     }
@@ -54,9 +56,15 @@ class AuthorController extends Controller
      */
     public function destroy(Author $author)
     {
-     
+
         $author->delete();
 
         return ResponseHelper::success("تم حذف المؤلف", $author);
+    }
+
+
+     public function show(Author $author)
+    {
+        return ResponseHelper::success("عرض بيانات المؤلف", $author);
     }
 }

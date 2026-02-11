@@ -15,9 +15,18 @@ class UserTypeMiddleware
      */
     public function handle(Request $request, Closure $next,$type): Response
     {
-        if ($request->user() && $request->user()->type !== $type) {
-            abort(403, 'Unauthorized');
+
+        // If user is customer, restrict POST, PUT, PATCH, DELETE methods
+        if ($request->user()?->type === 'customer' && in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
+            return response()->json([
+                'message' => 'Unauthorized. Customers can only perform GET requests.'
+            ], 403);
         }
+
+        // if ($request->user() && $request->user()->type !== 'admin') {
+        //     abort(403, 'Unauthorized');
+        // }
         return $next($request);
     }
+
 }

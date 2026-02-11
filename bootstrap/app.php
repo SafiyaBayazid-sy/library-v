@@ -16,7 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
         // global middleware
         $middleware->statefulApi();
 
-        $middleware->alias(['user-type'=> UserTypeMiddleware::class]);
+        $middleware->alias(['user-type'=> App\Http\Middleware\UserTypeMiddleware::class]);
         // middleware for "api" routes
         $middleware->appendToGroup('api', App\Http\Middleware\LangMiddleware::class);
     })

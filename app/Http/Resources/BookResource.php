@@ -21,8 +21,29 @@ class BookResource extends JsonResource
             "price" => $this->price ,
             "mortgage" => $this->mortgage ,
             "cover" =>  asset('storage/book-images/' . ($this->cover ?? 'no-image.jpeg')),
-            "category" => $this->category,
-            "authors" => $this->authors
+
+             "category" => [
+                "name" => $this->category->name ?? null
+            ],
+            "authors" => $this->authors->map(function($author) {
+                return [
+                    "id" => $author->id,
+                    "name" => $author->name
+                ];
+            }),
+
+                          "avg_rating" =>round( $this->avg_rating) ?? 0,
+
+
+        //    'category' => new CategoryResource($this->whenLoaded('category')),
+
+        //     'authors'  => AuthorResource::collection(
+        //         $this->whenLoaded('authors')
+        //     ),
+              "avg_rating" =>round( $this->avg_rating) ?? 0,
+
+
+
         ];
     }
 }
