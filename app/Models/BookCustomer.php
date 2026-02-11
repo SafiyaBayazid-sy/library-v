@@ -11,7 +11,7 @@ class BookCustomer extends Model
   use HasFactory;
   protected $table='book_customer';
 
-    protected $primaryKey = null;
+    // protected $primaryKey = null;
 
 
  protected $fillable = [

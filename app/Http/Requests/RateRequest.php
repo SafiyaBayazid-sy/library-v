@@ -27,7 +27,7 @@ public function rules(): array
 
     $rules = [
         'customer_id' => 'required|exists:customers,id',
-        'book_id' => 'required|exists:books,id'
+        'book_id' => 'required|exists:books,id',
     ];
 
     // For DELETE method: just check if record exists (no rate needed)

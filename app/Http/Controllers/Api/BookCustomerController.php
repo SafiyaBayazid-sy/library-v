@@ -10,6 +10,7 @@ use App\Models\Customer;
 use App\ResponseHelper;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookCustomerController extends Controller
@@ -29,15 +30,9 @@ class BookCustomerController extends Controller
      */
     public function store(RateRequest $request)
     {
-        $bookCustomer=BookCustomer::updateOrCreate(
-            [
-                'customer_id'=>$request->customer_id,
-                'book_id'=>$request->book_id
-            ],
-            [
-                'rate'=>$request->rate,
-            ]
-        );
+
+
+       $bookCustomer= BookCustomer::create($request->all());
 
 
         return ResponseHelper::success('تم تقييم الكتاب بنجاح',new RateResource($bookCustomer));    }
@@ -59,32 +54,29 @@ class BookCustomerController extends Controller
         );
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(RateRequest $request)
 {
-    $bookCustomer = BookCustomer::where('book_id', $request->book_id)
-        ->where('customer_id', $request->customer_id)
-        ->firstOrFail();
+    try {
+        $affected = DB::table('book_customer')->updateOrInsert(
+            ['customer_id' => $request->customer_id, 'book_id' => $request->book_id],
+            ['rate' => $request->rate, 'updated_at' => now()]
+        );
 
-    if (!$bookCustomer) {
-        return ResponseHelper::failed('لم يتم العثور على تقييم لهذا الكتاب من قبل هذا العميل', null, 404);
+        $bookCustomer = BookCustomer::where('customer_id', $request->customer_id)
+            ->where('book_id', $request->book_id)
+            ->first();
+
+        return ResponseHelper::success(
+            $affected ? 'تم تحديث التقييم بنجاح' : 'تم اضافة التقييم بنجاح',
+            new RateResource($bookCustomer)
+        );
+
+    } catch (\Exception $e) {
+        return ResponseHelper::failed('حدث خطأ: ' . $e->getMessage(), 500);
     }
-
-    $bookCustomer->update($request->only('rate'));
-
-    return ResponseHelper::success('تم تحديث بيانات تقييم الكتاب بنجاح', new RateResource($bookCustomer));
 }
-    public function update2(RateRequest $request)
-    {
 
-    $bookCustomer=BookCustomer::where('book_id',$request->book_id)
-    ->where('customer_id',$request->customer_id)->firstOrFail();
 
-        $bookCustomer->update($request->all());
-        return ResponseHelper::success('تم تحديث بيانات تقييم الكتاب بنجاح',new RateResource($bookCustomer));
-    }
 
     /**
      * Remove the specified resource from storage.

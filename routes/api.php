@@ -10,65 +10,84 @@ use App\Http\Controllers\Api\WaitingListsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// ================ PUBLIC ROUTES ================
+Route::post('login',    [AuthController::class, 'login']);
+Route::post('register', [AuthController::class, 'register']);
+Route::post('logout',   [AuthController::class, 'logout']);
 
+// Public for all guest
+Route::get('books', [BookController::class, 'index']);
+Route::get('books/{book}', [BookController::class, 'show']);
+Route::get('authors', [AuthorController::class, 'index']);
+Route::get('authors/{author}', [AuthorController::class, 'show']);
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('categories/{category}', [CategoryController::class, 'show']);
 
-
-Route::post('login', [AuthController::class , 'login']);
-Route::post('register', [AuthController::class , 'register']);
-Route::post('logout', [AuthController::class, 'logout']);
-
-
-
-
-
-   Route::get('/user', function (Request $request) {
+Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// ================ ADMIN ONLY ROUTES ================
+Route::middleware(['auth:sanctum', 'user-type:admin'])->group(function () {
 
-    Route::middleware(['auth:sanctum','user-type:admin,customer'])
+    Route::get('admin/customers',           [AuthController::class, 'index']);
+    Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
+    Route::put('update/user/{user}',        [AuthController::class, 'update']);
 
-    ->group(function () {
+    Route::apiResource('books',      BookController::class)->except(['index', 'show']);
+    Route::apiResource('authors',    AuthorController::class)->except(['index', 'show']);
+    Route::apiResource('categories', CategoryController::class)->except(['index', 'show']);
 
+    // Route::apiResource('book-requests', BookRequestController::class)->except('store');
+    Route::apiResource('waiting-lists', WaitingListsController::class)->except('store');
 
-Route::get('auth/me',[AuthController::class,'me']);
+});
 
-Route::get('admin/customers',[AuthController::class,'index']);
-Route::get('admin/customer/{customer}',[AuthController::class,'show']);
+// ================ CUSTOMER ONLY ROUTES ================
+Route::middleware(['auth:sanctum', 'user-type:customer'])->group(function () {
 
-Route::put('update/customer/{customer}',[AuthController::class,'updateCustomer']);
-Route::put('update/user/{user}',[AuthController::class,'update']);
+    // Customer Profile
+    Route::put('update/customer/{customer}', [AuthController::class, 'updateCustomer']);
 
+    // Book Requests
+    Route::post('book-requests',                             [BookRequestController::class, 'store']);
+    Route::get('book-requests/customer/{customer}',         [BookRequestController::class, 'getCustomerRequests']);
 
+    // Waiting Lists
+    Route::post('waiting-lists',                             [WaitingListsController::class, 'store']);
+    Route::get('waiting-lists/my-request/{customer}',         [WaitingListsController::class, 'getCustomerRequests']);
 
+    // Book Ratings
+    Route::post('ratings',                                 [BookCustomerController::class, 'store']);
+    Route::put('ratings',                                  [BookCustomerController::class, 'update']);
+    Route::delete('ratings',                               [BookCustomerController::class, 'destroyRate']);
+    Route::post('show/ratings',                            [BookCustomerController::class, 'show']);
+    Route::get('ratings/my-rate/{customer}',        [BookCustomerController::class, 'getCustomerRate']);
 
-        Route::apiResource('books', BookController::class);
-        Route::apiResource('authors', AuthorController::class);
-        Route::apiResource('categories', CategoryController::class);
+});
 
-        Route::apiResource('book-requests', BookRequestController::class);
-Route::get('book-requests/customer/{customer}',[BookRequestController::class,'getCustomerRequests']);
+// ================ ADMIN & CUSTOMER ROUTES ================
+Route::middleware(['auth:sanctum', 'user-type:admin,customer'])->group(function () {
 
+    // Authenticated User
+    Route::get('auth/me', [AuthController::class, 'me']);
 
+    // Read-only Resources
+    // Route::apiResource('books',      BookController::class)->only('index', 'show');
+    // Route::apiResource('authors',    AuthorController::class)->only('index', 'show');
+    // Route::apiResource('categories', CategoryController::class)->only('index', 'show');
 
+    // Book Requests
+    Route::apiResource('book-requests', BookRequestController::class)->only('index', 'show', 'update','destroy');
 
-Route::apiResource('rate-book' , BookCustomerController::class)->except('destroy');
-Route::get('rate-book/customer-rate/{customer}',[BookCustomerController::class,'getCustomerRate']);
-Route::delete('rate-book',[BookCustomerController::class,'destroyRate']);
-Route::put('rate-book',[BookCustomerController::class,'update']);
-Route::post('show/rate-book',[BookCustomerController::class,'show']);
+    // Waiting Lists
+    Route::apiResource('waiting-lists', WaitingListsController::class)->only('index', 'show', 'update');
 
-Route::apiResource('waiting-lists',WaitingListsController::class);
-Route::get('waiting-lists/customer/{customer}',[WaitingListsController::class,'getCustomerRequests']);
+    // Book Ratings
+    Route::get('ratings', [BookCustomerController::class, 'index']);
 
+});
 
-    });
-
-
-
-
-
-// when i add prefix api
 // Route::get('/sanctum/csrf-cookie', function (Request $request) {
 //     return response()->noContent();
 // })->middleware('web');

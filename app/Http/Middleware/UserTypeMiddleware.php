@@ -13,20 +13,22 @@ class UserTypeMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    public function handle(Request $request, Closure $next,$type): Response
-    {
-
-        // If user is customer, restrict POST, PUT, PATCH, DELETE methods
-        if ($request->user()?->type === 'customer' && in_array($request->method(), ['POST', 'PUT', 'PATCH', 'DELETE'])) {
-            return response()->json([
-                'message' => 'Unauthorized. Customers can only perform GET requests.'
-            ], 403);
-        }
-
-        // if ($request->user() && $request->user()->type !== 'admin') {
-        //     abort(403, 'Unauthorized');
-        // }
-        return $next($request);
+    // Better approach - define clear permission rules
+public function handle(Request $request, Closure $next, ...$types): Response
+{
+    if (!$request->user()) {
+        return response()->json(['message' => 'Unauthenticated.'], 401);
     }
+
+    // Check if user type is allowed for this route
+    if (!in_array($request->user()->type, $types)) {
+        return response()->json([
+            'message' => 'Access denied. Insufficient permissions.'
+        ], 403);
+    }
+
+    return $next($request);
+}
+
 
 }
