@@ -16,6 +16,9 @@ class Customer extends Model{
     function bookRequest(){
         return $this->belongsToMany(BookRequest::class);
     }
+     function waitingList(){
+        return $this->belongsToMany(WaitingList::class);
+    }
 
 
     public function ratedBooks()

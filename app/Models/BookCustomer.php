@@ -24,9 +24,7 @@ class BookCustomer extends Model
         return $this->belongsTo(Customer::class);
     }
 
-    function book(){
-        return $this->belongsTo(Book::class);
-    }
+
 
 
     }

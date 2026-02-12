@@ -21,11 +21,16 @@ class Book extends Model
     function authors(){
         return $this->belongsToMany(Author::class);
     }
+  function waitingList(){
+        return $this->belongsToMany(WaitingList::class);
+    }
 
       public function ratings()
     {
         return $this->hasMany(BookCustomer::class, 'book_id');
     }
+
+
 
 
 

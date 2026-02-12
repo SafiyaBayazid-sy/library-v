@@ -18,8 +18,10 @@ class BookRequestController extends Controller
      */
     public function index()
     {
-    $book_requests=BookRequest::all();
-    return ResponseHelper::success('تم جلب جميع الكتب المطلوبة',BookRequestResource::collection($book_requests));
+    $book_requests=BookRequest::with('customer')->get();
+    return ResponseHelper::success('تم جلب جميع الكتب المطلوبة',
+    BookRequestResource::collection($book_requests)
+    );
     }
 
     /**
@@ -36,7 +38,7 @@ class BookRequestController extends Controller
             'book_id'=> $request->book_id ,
             'author_name'=>$request->author_name,
             'admin_note'=>$request->admin_note,
-            'status'=>"new" //by default
+            //status by default is new
 
         ]);
 

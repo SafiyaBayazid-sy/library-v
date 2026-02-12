@@ -20,7 +20,9 @@ class BookRequestResource extends JsonResource
             "customer_id" => $this->customer_id ,
             "author_name"=>$this->author_name,
             "admin_note"=>$this->admin_note,
-            "status"=>$this->status
+            "status"=>$this->status,
+            'customer'=>new CustomerResource($this->whenLoaded('customer'))
+
 
         ];
     }

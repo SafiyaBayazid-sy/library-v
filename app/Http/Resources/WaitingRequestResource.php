@@ -18,6 +18,8 @@ class WaitingRequestResource extends JsonResource
             "id" => $this->id ,
             "book_id" => $this->book_id ,
             "customer_id" => $this->customer_id ,
+            'book'=>new BookResource($this->whenLoaded('book')),
+            'customer'=>new CustomerResource($this->whenLoaded('customer'))
 
 
         ];

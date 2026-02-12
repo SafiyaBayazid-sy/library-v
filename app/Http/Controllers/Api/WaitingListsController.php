@@ -17,8 +17,10 @@ class WaitingListsController extends Controller
      */
     public function index()
     {
-    $book_requests=WaitingList::all();
-    return ResponseHelper::success('تم جلب جميع الكتب المطلوبة',WaitingRequestResource::collection($book_requests));
+    $waitingList=WaitingList::with(['book','customer'])->get();
+    return ResponseHelper::success('تم جلب جميع الكتب المطلوبة',
+    WaitingRequestResource::collection($waitingList)
+    );
     }
 
     /**
