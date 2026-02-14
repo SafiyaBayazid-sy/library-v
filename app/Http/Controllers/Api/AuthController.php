@@ -159,19 +159,18 @@ function register(Request $request)
 
 
 
-public function index(){
+// public function index(){
+// $user=Customer::all();
+// return ResponseHelper::success('جميع المستخدمين',CustomerResource::collection($user));
 
-$user=User::where('type','customer')->get();
-return ResponseHelper::success('جميع المستخدمين',AuthResource::collection($user));
+// }
 
-}
-
-public function show(Customer $customer){
-    $customer->load(['user' => function ($query) {
-        $query->without('customer');
-    }]);
-    return  ResponseHelper::success('بيانات المستخدم',new CustomerResource($customer));
-}
+// public function show(Customer $customer){
+//     $customer->load(['user' => function ($query) {
+//         $query->without('customer');
+//     }]);
+//     return  ResponseHelper::success('بيانات المستخدم',new CustomerResource($customer));
+// }
 
 
 }

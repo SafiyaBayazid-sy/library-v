@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\BookController;
 use App\Http\Controllers\Api\BookCustomerController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\BookRequestController;
 use App\Http\Controllers\Api\WaitingListsController;
 use Illuminate\Http\Request;
@@ -30,9 +31,11 @@ Route::get('/user', function (Request $request) {
 // ================ ADMIN ONLY ROUTES ================
 Route::middleware(['auth:sanctum', 'user-type:admin'])->group(function () {
 
-    Route::get('admin/customers',           [AuthController::class, 'index']);
+    Route::get('admin/customers',           [UserController::class, 'index']);
     // Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
     Route::put('update/user/{user}',        [AuthController::class, 'update']);
+
+    Route::get('book-list',           [BookController::class, 'bookList']);
 
     Route::apiResource('books',      BookController::class)->except(['index', 'show']);
     Route::apiResource('authors',    AuthorController::class)->except(['index', 'show']);
@@ -68,7 +71,7 @@ Route::middleware(['auth:sanctum', 'user-type:customer'])->group(function () {
 
 // ================ ADMIN & CUSTOMER ROUTES ================
 Route::middleware(['auth:sanctum', 'user-type:admin,customer'])->group(function () {
-    Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
+    Route::get('admin/customer/{customer}', [UserController::class, 'show']);
 
     // Authenticated User
     Route::get('auth/me', [AuthController::class, 'me']);

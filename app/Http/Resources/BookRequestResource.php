@@ -14,14 +14,25 @@ class BookRequestResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+         if ($this->relationLoaded('customer') && $this->customer) {
+        $this->customer->loadMissing('user');
+    }
+
         return[
             "id" => $this->id ,
             "book_title" => $this->book_title ,
             "customer_id" => $this->customer_id ,
             "author_name"=>$this->author_name,
+            "customer_name" => $this->customer?->user?->name,
             "admin_note"=>$this->admin_note,
             "status"=>$this->status,
-            'customer'=>new CustomerResource($this->whenLoaded('customer'))
+            'created_at'=>$this->created_at,
+            'customer'=>new CustomerResource($this->whenLoaded('customer')),
+            
+            
+            
+            // "customer_name" => $this->whenLoaded('customer', function() {
+            // return $this->customer->user->name;}),   
 
 
         ];

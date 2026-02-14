@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookRequest;
+use App\Http\Resources\BookListResource;
 use App\Models\Book;
 use App\Http\Resources\BookResource;
 use App\ResponseHelper;
@@ -33,6 +34,11 @@ class BookController extends Controller
 
         /** Using resource */
         return ResponseHelper::success(' جميع الكتب', BookResource::collection($books));
+    }
+
+    public function bookList(){
+        $books=Book::with(['category', 'authors'])->get();
+        return ResponseHelper::success(' جميع الكتب', BookListResource::collection($books));
     }
 
 

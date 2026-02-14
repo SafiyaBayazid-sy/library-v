@@ -20,28 +20,23 @@ class BookResource extends JsonResource
             "title" => $this->title ,
             "price" => $this->price ,
             "mortgage" => $this->mortgage ,
-            "cover" =>
-                       asset('storage/'. ($this->cover !=null ? 'book-images/'.$this->cover:  'no-image.png')),
-
-             "category" => [
-                "name" => $this->category->name ?? null
-            ],
-            "authors" => $this->authors->map(function($author) {
+            "authorship_date"=>$this->authorship_date,
+            "pages"=>$this->pages,
+            "total_copies"=>$this->total_copies,
+            "remaining_copies"=>$this->remaining_copies,
+            "borrow_duration"=>$this->borrow_duration,
+            "status"=> $this->remaining_copies > 0 ? "available" : "borrowed",
+            "cover" =>asset('storage/'. ($this->cover !=null ? 'book-images/'.$this->cover:  'no-image.png')),
+            "avg_rating" => $this->avg_rating ?? 0,
+            'category' => new CategoryResource($this->whenLoaded('category')),
+            "authors" => $this->whenLoaded('authors', function() {
+             return $this->authors->map(function($author) {
                 return [
                     "id" => $author->id,
                     "name" => $author->name
-                ];
-            }),
+                ];});
+            }),  
 
-                          "avg_rating" => $this->avg_rating ?? 0,
-                        //   round( $this->avg_rating) ?? 0,
-
-
-        //    'category' => new CategoryResource($this->whenLoaded('category')),
-
-        //     'authors'  => AuthorResource::collection(
-        //         $this->whenLoaded('authors')
-        //     ),
 
 
 
