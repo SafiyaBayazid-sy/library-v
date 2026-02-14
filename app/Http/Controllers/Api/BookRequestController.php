@@ -51,7 +51,8 @@ class BookRequestController extends Controller
      */
     public function show(BookRequest $bookRequest)
     {
-        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب',new BookRequestResource($bookRequest));
+        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب',new BookRequestResource($bookRequest->load('customer')
+));
     }
 
     /**
@@ -64,7 +65,7 @@ class BookRequestController extends Controller
             $request['book_id']=$request->book_id ?? null;
 
        $bookRequest->update($request->all());
-        return ResponseHelper::success('تم تحديث بيانات طلب الكتاب بنجاح',new BookRequestResource($bookRequest));
+        return ResponseHelper::success('تم تحديث بيانات طلب الكتاب بنجاح',new BookRequestResource($bookRequest->load('customer')));
 
     }
 
@@ -80,6 +81,6 @@ class BookRequestController extends Controller
 
     public function getCustomerRequests(Customer $customer){
         $requests_books=BookRequest::where('customer_id',$customer->id)->get();
-        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل',BookRequestResource::collection($requests_books));
+        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل',BookRequestResource::collection($requests_books->load('customer')));
     }
 }

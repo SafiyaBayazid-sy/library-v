@@ -20,7 +20,8 @@ class BookResource extends JsonResource
             "title" => $this->title ,
             "price" => $this->price ,
             "mortgage" => $this->mortgage ,
-            "cover" =>  asset('storage/book-images/' . ($this->cover ?? 'no-image.jpeg')),
+            "cover" =>
+                       asset('storage/'. ($this->cover !=null ? 'book-images/'.$this->cover:  'no-image.png')),
 
              "category" => [
                 "name" => $this->category->name ?? null
@@ -32,7 +33,8 @@ class BookResource extends JsonResource
                 ];
             }),
 
-                          "avg_rating" =>round( $this->avg_rating) ?? 0,
+                          "avg_rating" => $this->avg_rating ?? 0,
+                        //   round( $this->avg_rating) ?? 0,
 
 
         //    'category' => new CategoryResource($this->whenLoaded('category')),
@@ -40,7 +42,6 @@ class BookResource extends JsonResource
         //     'authors'  => AuthorResource::collection(
         //         $this->whenLoaded('authors')
         //     ),
-              "avg_rating" =>round( $this->avg_rating) ?? 0,
 
 
 

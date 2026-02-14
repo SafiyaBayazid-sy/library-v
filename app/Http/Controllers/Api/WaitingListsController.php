@@ -45,7 +45,8 @@ class WaitingListsController extends Controller
      */
     public function show(WaitingList $waitingList)
     {
-        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب',new WaitingRequestResource($waitingList));
+        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب',new WaitingRequestResource($waitingList    ->load(['book','customer'])
+));
     }
 
     /**
@@ -56,7 +57,8 @@ class WaitingListsController extends Controller
     {
 
        $waitingList->update($request->all());
-        return ResponseHelper::success('تم تحديث بيانات الكتاب بنجاح',new WaitingRequestResource($waitingList));
+        return ResponseHelper::success('تم تحديث بيانات الكتاب بنجاح',new WaitingRequestResource($waitingList    ->load(['book','customer'])
+));
 
     }
 
@@ -72,6 +74,7 @@ class WaitingListsController extends Controller
 
     public function getCustomerRequests(Customer $customer){
         $requests_books=WaitingList::where('customer_id',$customer->id)->get();
-        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل',WaitingRequestResource::collection($requests_books));
+        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل',WaitingRequestResource::collection($requests_books    ->load(['book','customer'])
+));
     }
 }

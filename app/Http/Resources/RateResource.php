@@ -18,6 +18,9 @@ class RateResource extends JsonResource
             "book_id" => $this->book_id ,
             "customer_id" => $this->customer_id ,
             "rate" => $this->rate ,
+             'book'=>new BookResource($this->whenLoaded('book')),
+            'customer'=>new CustomerResource($this->whenLoaded('customer'))
+
 
         ];
     }

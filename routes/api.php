@@ -31,7 +31,7 @@ Route::get('/user', function (Request $request) {
 Route::middleware(['auth:sanctum', 'user-type:admin'])->group(function () {
 
     Route::get('admin/customers',           [AuthController::class, 'index']);
-    Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
+    // Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
     Route::put('update/user/{user}',        [AuthController::class, 'update']);
 
     Route::apiResource('books',      BookController::class)->except(['index', 'show']);
@@ -68,14 +68,11 @@ Route::middleware(['auth:sanctum', 'user-type:customer'])->group(function () {
 
 // ================ ADMIN & CUSTOMER ROUTES ================
 Route::middleware(['auth:sanctum', 'user-type:admin,customer'])->group(function () {
+    Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
 
     // Authenticated User
     Route::get('auth/me', [AuthController::class, 'me']);
 
-    // Read-only Resources
-    // Route::apiResource('books',      BookController::class)->only('index', 'show');
-    // Route::apiResource('authors',    AuthorController::class)->only('index', 'show');
-    // Route::apiResource('categories', CategoryController::class)->only('index', 'show');
 
     // Book Requests
     Route::apiResource('book-requests', BookRequestController::class)->only('index', 'show', 'update','destroy');
@@ -88,6 +85,6 @@ Route::middleware(['auth:sanctum', 'user-type:admin,customer'])->group(function 
 
 });
 
-// Route::get('/sanctum/csrf-cookie', function (Request $request) {
-//     return response()->noContent();
-// })->middleware('web');
+ Route::get('/sanctum/csrf-cookie', function (Request $request) {
+    return response()->noContent();
+ })->middleware('web');

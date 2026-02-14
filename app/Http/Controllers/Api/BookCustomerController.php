@@ -21,7 +21,7 @@ class BookCustomerController extends Controller
     public function index()
     {
 
-  $book_requests=BookCustomer::all();
+  $book_requests=BookCustomer::with(['book','customer'])->get();
     return ResponseHelper::success('تم جلب جميع تقييمات الكتب المطلوبة',RateResource::collection($book_requests));
         }
 
@@ -50,7 +50,8 @@ class BookCustomerController extends Controller
 
 
         return ResponseHelper::success('تم جلب بيانات تقييم الكتاب المطلوب',
-        new RateResource($bookCustomer)
+        new RateResource($bookCustomer  ->load(['book','customer'])
+)
         );
     }
 
@@ -68,7 +69,8 @@ class BookCustomerController extends Controller
 
         return ResponseHelper::success(
             $affected ? 'تم تحديث التقييم بنجاح' : 'تم اضافة التقييم بنجاح',
-            new RateResource($bookCustomer)
+            new RateResource($bookCustomer    ->load(['book','customer'])
+)
         );
 
     } catch (\Exception $e) {
@@ -105,6 +107,7 @@ class BookCustomerController extends Controller
 
     public function getCustomerRate(Customer $customer){
         $requests_books=BookCustomer::where('customer_id',$customer->id)->get();
-        return ResponseHelper::success('تم جلب جميع تقييم الكتب المطلوبة للعميل',RateResource::collection($requests_books));
+        return ResponseHelper::success('تم جلب جميع تقييم الكتب المطلوبة للعميل',RateResource::collection($requests_books    ->load(['book','customer'])
+));
     }
 }
