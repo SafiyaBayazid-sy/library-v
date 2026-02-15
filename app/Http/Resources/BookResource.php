@@ -18,6 +18,8 @@ class BookResource extends JsonResource
             "id" => $this->id ,
             "ISBN" => $this->ISBN ,
             "title" => $this->title ,
+            "category_name" => $this->whenLoaded('category', $this->category?->name),
+            'createdAt' => $this->created_at->format('Y-m-d'),
             "price" => $this->price ,
             "mortgage" => $this->mortgage ,
             "authorship_date"=>$this->authorship_date,
@@ -35,7 +37,7 @@ class BookResource extends JsonResource
                     "id" => $author->id,
                     "name" => $author->name
                 ];});
-            }),  
+            }),
 
 
 

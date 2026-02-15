@@ -26,13 +26,13 @@ class BookRequestResource extends JsonResource
             "customer_name" => $this->customer?->user?->name,
             "admin_note"=>$this->admin_note,
             "status"=>$this->status,
-            'created_at'=>$this->created_at,
+            'created_at'=>$this->created_at->format('Y-m-d'),
             'customer'=>new CustomerResource($this->whenLoaded('customer')),
-            
-            
-            
+
+
+
             // "customer_name" => $this->whenLoaded('customer', function() {
-            // return $this->customer->user->name;}),   
+            // return $this->customer->user->name;}),
 
 
         ];

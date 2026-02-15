@@ -13,7 +13,7 @@ class BookListResource extends JsonResource
             'id' => $this->id,
             'title' => $this->title,
             'category' => $this->category?->name,
-            'createdAt' => $this->created_at
+            'createdAt' => $this->created_at->format('Y-m-d')
         ];
     }
 }

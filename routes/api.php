@@ -35,7 +35,7 @@ Route::middleware(['auth:sanctum', 'user-type:admin'])->group(function () {
     // Route::get('admin/customer/{customer}', [AuthController::class, 'show']);
     Route::put('update/user/{user}',        [AuthController::class, 'update']);
 
-    Route::get('book-list',           [BookController::class, 'bookList']);
+    // Route::get('book-list',           [BookController::class, 'bookList']);
 
     Route::apiResource('books',      BookController::class)->except(['index', 'show']);
     Route::apiResource('authors',    AuthorController::class)->except(['index', 'show']);
