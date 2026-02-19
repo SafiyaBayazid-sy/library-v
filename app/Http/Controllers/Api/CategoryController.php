@@ -34,7 +34,10 @@ class CategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $unique = uniqid();
+            $filename = time() . '_' . $unique . '.' . $file->extension();
+
             Storage::putFileAs('category-images', $file, $filename);
             // حفظ اسم الملف في قاعدة البيانات
             $category->image = $filename;
@@ -61,7 +64,10 @@ class CategoryController extends Controller
 
         if ($request->hasFile('image')) {
             $file = $request->file('image');
-            $filename = time() . '_' . $file->getClientOriginalName();
+
+            $unique = uniqid();
+            $filename = time() . '_' . $unique . '.' . $file->extension();
+
             Storage::putFileAs('category-images', $file, $filename);
             if ($category->image)
                 Storage::delete("category-images/$category->image");
@@ -86,7 +92,7 @@ class CategoryController extends Controller
         }
 
         if ($category->image)
-                Storage::delete("category-images/$category->image");
+            Storage::delete("category-images/$category->image");
 
 
         $category->delete();
@@ -94,7 +100,7 @@ class CategoryController extends Controller
     }
 
 
-     public function show(Category $category)
+    public function show(Category $category)
     {
         return ResponseHelper::success("عرض بيانات الصنف", $category);
     }

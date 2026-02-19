@@ -24,7 +24,7 @@ class BookFactory extends Factory
             'title' => $this->faker->text(70),
             'price' => $this->faker->randomFloat(2, 0, 99),
             'mortgage' => $this->faker->randomFloat(2, 0, 9999),
-            'cover' => $this->faker->optional()->imageUrl(),
+            'cover' => null,
             'pages' => $this->faker->numberBetween(50, 1000),
             'borrow_duration' => $this->faker->numberBetween(7, 30), // 7-30 days
             'total_copies' => $totalCopies,

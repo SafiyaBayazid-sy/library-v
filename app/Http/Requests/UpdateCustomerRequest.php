@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -9,9 +10,11 @@ use Illuminate\Validation\Rule;
 class UpdateCustomerRequest extends FormRequest
 {
     public function authorize()
-    {
-        return true;
-    }
+{
+    $customer = $this->route('customer');
+
+    return $customer && $customer->user_id === Auth::id();
+}
 
     public function rules()
     {

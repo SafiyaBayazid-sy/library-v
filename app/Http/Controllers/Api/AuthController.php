@@ -74,7 +74,8 @@ function register(Request $request)
 
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $filename = time() . '.' . $file->extension();
+            $unique = uniqid();
+            $filename = time() . '_' . $unique . '.' .$file->extension();
 
             $path = $file->storeAs('customers-avatar', $filename); // 'public' disk
 
@@ -132,7 +133,10 @@ function register(Request $request)
 
         // Save new avatar
          $file = $request->file('avatar');
-         $filename =time() . '.' . $file->extension();
+
+           $unique = uniqid();
+            $filename = time() . '_' . $unique . '.' .$file->extension();
+
          Storage::putFileAs('customers-avatar', $file ,$filename );
          $customer->avatar = $filename;
          $customer->save();
@@ -147,6 +151,10 @@ function register(Request $request)
 
      public function update(Request $request,User $user){
 
+     if($user->type == 'customer')
+        return ResponseHelper::failed('Unauthenticated');
+
+
         $user->update([
             'name' => $request->name ?? $user->name,
             'email' => $request->email ?? $user->email,
@@ -155,22 +163,4 @@ function register(Request $request)
         return ResponseHelper::success('تم تحديث البيانات',new AuthResource($user));
 
     }
-
-
-
-
-// public function index(){
-// $user=Customer::all();
-// return ResponseHelper::success('جميع المستخدمين',CustomerResource::collection($user));
-
-// }
-
-// public function show(Customer $customer){
-//     $customer->load(['user' => function ($query) {
-//         $query->without('customer');
-//     }]);
-//     return  ResponseHelper::success('بيانات المستخدم',new CustomerResource($customer));
-// }
-
-
 }

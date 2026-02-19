@@ -16,6 +16,7 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('book_id')->constrained()->nullable()->default(null);
             $table->timestamps();
+            $table->unique(['customer_id', 'book_id']);
         });
     }
 

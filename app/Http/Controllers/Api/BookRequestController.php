@@ -18,10 +18,11 @@ class BookRequestController extends Controller
      */
     public function index()
     {
-    $book_requests=BookRequest::with('customer')->get();
-    return ResponseHelper::success('تم جلب جميع الكتب المطلوبة',
-    BookRequestResource::collection($book_requests)
-    );
+        $book_requests = BookRequest::with('customer')->get();
+        return ResponseHelper::success(
+            'تم جلب جميع الكتب المطلوبة',
+            BookRequestResource::collection($book_requests)
+        );
     }
 
     /**
@@ -32,27 +33,28 @@ class BookRequestController extends Controller
     {
 
 
-        $bookRequest=BookRequest::create([
-            'book_title'=>$request->book_title,
-            'customer_id'=>$request->customer_id,
-            'book_id'=> $request->book_id ,
-            'author_name'=>$request->author_name,
-            'admin_note'=>$request->admin_note,
+        $bookRequest = BookRequest::create([
+            'book_title' => $request->book_title,
+            'customer_id' => $request->customer_id,
+            'book_id' => $request->book_id,
+            'author_name' => $request->author_name,
+            'admin_note' => $request->admin_note,
             //status by default is new
 
         ]);
 
 
-        return ResponseHelper::success('تم طلب الكتاب بنجاح',$bookRequest);
+        return ResponseHelper::success('تم طلب الكتاب بنجاح', $bookRequest);
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(BookRequest $bookRequest)
+    public function show(BooksRequest $request, BookRequest $bookRequest)
     {
-        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب',new BookRequestResource($bookRequest->load('customer')
-));
+        return ResponseHelper::success('تم جلب بيانات الكتاب المطلوب', new BookRequestResource(
+            $bookRequest->load('customer')
+        ));
     }
 
     /**
@@ -62,25 +64,24 @@ class BookRequestController extends Controller
     {
 
 
-            $request['book_id']=$request->book_id ?? null;
+        $request['book_id'] = $request->book_id ?? null;
 
-       $bookRequest->update($request->all());
-        return ResponseHelper::success('تم تحديث بيانات طلب الكتاب بنجاح',new BookRequestResource($bookRequest->load('customer')));
-
+        $bookRequest->update($request->all());
+        return ResponseHelper::success('تم تحديث بيانات طلب الكتاب بنجاح', new BookRequestResource($bookRequest->load('customer')));
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(BookRequest $bookRequest)
+    public function destroy(BooksRequest $request, BookRequest $bookRequest)
     {
         $bookRequest->delete();
-        return ResponseHelper::success('تم حذف طلب الكتاب بنجاح',null);
-
+        return ResponseHelper::success('تم حذف طلب الكتاب بنجاح', null);
     }
 
-    public function getCustomerRequests(Customer $customer){
-        $requests_books=BookRequest::where('customer_id',$customer->id)->get();
-        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل',BookRequestResource::collection($requests_books->load('customer')));
+    public function getCustomerRequests(BooksRequest $request, Customer $customer)
+    {
+        $requests_books = BookRequest::where('customer_id', $customer->id)->get();
+        return ResponseHelper::success('تم جلب جميع الكتب المطلوبة للعميل', BookRequestResource::collection($requests_books->load('customer')));
     }
 }

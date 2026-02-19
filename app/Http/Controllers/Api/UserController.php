@@ -3,8 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\UpdateCustomerRequest;
-use App\Http\Resources\AuthResource;
+
 use App\Http\Resources\CustomerResource;
 use App\Models\Customer;
 use App\Models\User;
@@ -17,8 +16,7 @@ use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
-
-
+   
 public function index(){
 $user=Customer::all();
 return ResponseHelper::success('جميع المستخدمين',CustomerResource::collection($user));

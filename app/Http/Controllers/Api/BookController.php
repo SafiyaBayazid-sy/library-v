@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\BookRequest;
+use App\Http\Resources\BookCollection;
 use App\Http\Resources\BookListResource;
 use App\Models\Book;
 use App\Http\Resources\BookResource;
@@ -19,27 +20,24 @@ class BookController extends Controller
      */
     public function index(Request $request)
     {
-        $title = $request->title;
-        $category_name=$request->category_name;
-        $author_name=$request->author_name;
+
+    $filters = $request->only(['title', 'category_name', 'author_name']);
+       
 
         $books = Book::with(['category', 'authors'])
-        ->withAvg('ratings as avg_rating', 'rate')
-        ->search($title, $category_name, $author_name)
+        ->withAvg('ratings as avg_rating', 'book_customer.rate')
+        ->search($filters)
         ->whereHas('authors')
         ->whereHas('category')
         ->orderBy('id')
-        ->get();
+        ->paginate(10);
 
 
         /** Using resource */
-        return ResponseHelper::success(' جميع الكتب', BookResource::collection($books));
+        return ResponseHelper::success(' جميع الكتب',  new BookCollection($books));
     }
 
-    public function bookList(){
-        $books=Book::with(['category', 'authors'])->get();
-        return ResponseHelper::success(' جميع الكتب', BookListResource::collection($books));
-    }
+   
 
 
 
@@ -52,10 +50,14 @@ class BookController extends Controller
 
         if ($request->hasFile('cover')) {
             $file = $request->file('cover');
-            $filename = "$request->ISBN." . $file->extension();
+             $unique = uniqid();
+             $filename = $request->ISBN . '_' . $unique . '.' . $file->extension();
+
             Storage::putFileAs('book-images', $file, $filename);
             $validated['cover'] = $filename;
+            
         }
+        $validated['remaining_copies'] = $validated['total_copies']; 
         $book = Book::create($validated);
 
         // ربط المؤلفين بالكتاب
@@ -81,21 +83,30 @@ class BookController extends Controller
     /**
      * Update the specified resource in storage.
      */
+    
     public function update(BookRequest $request, Book $book)
     {
         $validated = $request->validated();
 
         if ($request->hasFile('cover')) {
             $file = $request->file('cover');
-            $filename = "$request->ISBN." . $file->extension();
+
+             $unique = uniqid();
+             $filename = $request->ISBN . '_' . $unique . '.' . $file->extension();
+
             if ($book->cover) {
                 Storage::delete("book-images/$book->cover");
             }
 
             Storage::putFileAs('book-images', $file, $filename);
-            $validated['cover'] = $filename;
+            
+          
+             $validated['cover'] = $filename;
+            
+        
         }
         $book->update($validated);
+      
 
 
         $book->authors()->sync($validated['authors'] ?? []);

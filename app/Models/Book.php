@@ -11,7 +11,7 @@ class Book extends Model
     use HasFactory;
 
  protected $fillable = ['ISBN' , 'title' , 'price' , 'mortgage', 'category_id','pages',
-    'borrow_duration','total_copies','remaining_copies','authorship_date'];
+    'borrow_duration','total_copies','remaining_copies','authorship_date','cover'];
         //  protected $guraded = [];
 
 
@@ -21,37 +21,39 @@ class Book extends Model
     function authors(){
         return $this->belongsToMany(Author::class);
     }
-  function waitingList(){
-        return $this->belongsToMany(WaitingList::class);
-    }
 
-      public function ratings()
+
+      public function waitingCustomers()
     {
-        return $this->hasMany(BookCustomer::class, 'book_id');
+        return $this->belongsToMany(Customer::class, 'waiting_lists')
+                    ->withTimestamps(); // if you have timestamps
     }
 
 
 
+ public function ratings() 
+    {
+        return $this->belongsToMany(Customer::class, 'book_customer')
+                    ->withPivot('rate', 'created_at', 'updated_at')
+                    ->withTimestamps();
+    }
 
 
-
-    public function scopeSearch($query,$title,$category_name,$author_name){
-    return $query->when(
-        $title,function($q) use ($title){
-           $q->where('title','like',"%$title%");
-        }
-    )
-    ->when($category_name,function($q) use ($category_name){
-        return $q->whereHas('category',function($subquery) use($category_name){
-             $subquery->where('name','like',"%$category_name%");
+public function scopeSearch($query, array $filters = [])
+{
+    return $query
+        ->when(isset($filters['title']) && $filters['title'], function($q) use ($filters) {
+            return $q->where('title', 'like', "%{$filters['title']}%");
+        })
+        ->when(isset($filters['category_name']) && $filters['category_name'], function($q) use ($filters) {
+            return $q->whereHas('category', function($subQuery) use ($filters) {
+                $subQuery->where('name', 'like', "%{$filters['category_name']}%");
+            });
+        })
+        ->when(isset($filters['author_name']) && $filters['author_name'], function($q) use ($filters) {
+            return $q->whereHas('authors', function($subQuery) use ($filters) {
+                $subQuery->where('name', 'like', "%{$filters['author_name']}%");
+            });
         });
-    })
-    ->when($author_name,function($q) use ($author_name){
-        return $q->whereHas('authors',function($subquery) use ($author_name){
-             $subquery->where('name','like',"%$author_name%");
-        });
-    });
-
-
 }
 }

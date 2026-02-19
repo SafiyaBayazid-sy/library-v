@@ -16,16 +16,21 @@ class Customer extends Model{
     function bookRequest(){
         return $this->belongsToMany(BookRequest::class);
     }
-     function waitingList(){
-        return $this->belongsToMany(WaitingList::class);
+  
+
+     public function waitingBooks()
+    {
+        return $this->belongsToMany(Book::class, 'waiting_lists')
+                    ->withTimestamps(); // if you have timestamps
     }
 
 
-    public function ratedBooks()
-{
-    return $this->belongsToMany(Book::class, 'book_customer') // Explicit table name
-                ->withPivot('rate')
-                ->withTimestamps();
-}
+
+ public function ratedBooks()
+    {
+        return $this->belongsToMany(Book::class, 'book_customer')
+                    ->withPivot('rate', 'created_at', 'updated_at') // Include all pivot fields
+                    ->withTimestamps();
+    }
 
 }

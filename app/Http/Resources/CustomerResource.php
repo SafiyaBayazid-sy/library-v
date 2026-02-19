@@ -24,9 +24,8 @@ class CustomerResource extends JsonResource
             'gender'=>$this->gender,
             'DOB'=>$this->DOB,
             'avatar' => $this->avatar ? url('storage/' . $this->avatar) : null,
-            'joinDate'=>$this->created_at->format('Y-m-d')
-              // =>2026-02-07T20:53:03.000000Z
-            //->format('Y-m-d') => 2026-02-07
+            'joinDate'=>$this->created_at->format('Y-m-d'),
+
         ];
     }
 }

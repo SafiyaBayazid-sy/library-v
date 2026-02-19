@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\User;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class BookRequest extends FormRequest
@@ -12,6 +14,10 @@ class BookRequest extends FormRequest
      */
     public function authorize(): bool
     {
+
+        if (!Auth::check() || Auth::user()->type=='customer') {
+            return false;
+        }
         return true;
     }
 
@@ -24,7 +30,6 @@ class BookRequest extends FormRequest
   public function rules(): array
 {
     $book = $this->route('book'); // Book model
-
     return [
         'ISBN' => ['required', 'digits:13', Rule::unique('books', 'ISBN')->ignore($book?->id)],
         'title' => 'required|string|max:70',
@@ -36,7 +41,7 @@ class BookRequest extends FormRequest
         'pages' => 'required|integer|min:1|max:10000',
         'borrow_duration' => 'required|integer|min:1|max:365',
         'total_copies' => 'required|integer|min:0|max:99999',
-        'remaining_copies' => 'required|integer|min:0|max:99999',
+        'remaining_copies' => 'sometimes|integer|min:0|max:99999',
 
         'category_id' => 'required|exists:categories,id',
         'authors' => 'nullable|array',

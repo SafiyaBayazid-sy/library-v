@@ -4,110 +4,131 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RateRequest;
+use App\Http\Resources\CustomerResource;
 use App\Http\Resources\RateResource;
-use App\Models\BookCustomer;
 use App\Models\Customer;
+use App\Models\Book;
 use App\ResponseHelper;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class BookCustomerController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
 
-  $book_requests=BookCustomer::with(['book','customer'])->get();
-    return ResponseHelper::success('تم جلب جميع تقييمات الكتب المطلوبة',RateResource::collection($book_requests));
-        }
+        $ratings = $this->ratingsQuery()
+            ->get();
 
-    /**
-     * Store a newly created resource in storage.
-     */
+
+        return ResponseHelper::success(
+            'تم جلب جميع تقييمات الكتب المطلوبة',
+            // $ratings
+            RateResource::collection($ratings)
+            // CustomerResource::collection($ratings)
+        );
+    }
+
     public function store(RateRequest $request)
     {
+        $customer = Customer::with('user')->findOrFail($request->customer_id);
 
+        // Attach with rating using the relationship
+        $customer->ratedBooks()->attach($request->book_id, [
+            'rate' => $request->rate,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
-       $bookCustomer= BookCustomer::create($request->all());
+        // Get the created rating with relationships
 
+        $rating = $this->ratingsQuery()
+            ->where('book_customer.book_id', $request->book_id)
+            ->where('book_customer.customer_id', $request->customer_id)
+            ->first();
 
-        return ResponseHelper::success('تم تقييم الكتاب بنجاح',new RateResource($bookCustomer));    }
+        return ResponseHelper::success(
+            'تم تقييم الكتاب بنجاح',
+            //    $rating
+            new RateResource($rating)
+        );
+    }
 
-    /**
-     * Display the specified resource.
-     */
-        public function show(Request $request)
-
+    private function ratingsQuery()
     {
-    $bookCustomer=BookCustomer::
-    where('book_id',$request->book_id)
-    ->where('customer_id',$request->customer_id)
-    ->firstOrFail();
+        return DB::table('book_customer')
+            ->join('books', 'book_customer.book_id', '=', 'books.id')
+            ->join('customers', 'book_customer.customer_id', '=', 'customers.id')
+            ->join('users', 'customers.user_id', '=', 'users.id');
+    }
 
 
-        return ResponseHelper::success('تم جلب بيانات تقييم الكتاب المطلوب',
-        new RateResource($bookCustomer  ->load(['book','customer'])
-)
+
+    public function show(RateRequest $request)
+    {
+        $rating = $this->ratingsQuery()
+            ->where('book_customer.book_id', $request->book_id)
+            ->where('book_customer.customer_id', $request->customer_id)
+            ->firstOrFail();
+
+        return ResponseHelper::success(
+            'تم جلب بيانات تقييم الكتاب المطلوب',
+            new RateResource($rating)
         );
     }
 
     public function update(RateRequest $request)
-{
-    try {
-        $affected = DB::table('book_customer')->updateOrInsert(
-            ['customer_id' => $request->customer_id, 'book_id' => $request->book_id],
-            ['rate' => $request->rate, 'updated_at' => now()]
-        );
+    {
+        try {
+            $customer = Customer::findOrFail($request->customer_id);
 
-        $bookCustomer = BookCustomer::where('customer_id', $request->customer_id)
-            ->where('book_id', $request->book_id)
-            ->first();
-
-        return ResponseHelper::success(
-            $affected ? 'تم تحديث التقييم بنجاح' : 'تم اضافة التقييم بنجاح',
-            new RateResource($bookCustomer    ->load(['book','customer'])
-)
-        );
-
-    } catch (\Exception $e) {
-        return ResponseHelper::failed('حدث خطأ: ' . $e->getMessage(), 500);
-    }
-}
+            // Update the pivot record
+            $customer->ratedBooks()->updateExistingPivot($request->book_id, [
+                'rate' => $request->rate,
+                'updated_at' => now()
+            ]);
 
 
+            $rating = $this->ratingsQuery()
+                ->where('book_customer.book_id', $request->book_id)
+                ->where('book_customer.customer_id', $request->customer_id)
+                ->first();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Request $request){
 
+            return ResponseHelper::success(
+                'تم تحديث التقييم بنجاح',
+                new RateResource($rating)
+            );
+        } catch (\Exception $e) {
+            return ResponseHelper::failed('حدث خطأ: ' . $e->getMessage(), 500);
+        }
     }
 
     public function destroyRate(RateRequest $request)
-{
-    try {
+    {
+        try {
+            $customer = Customer::findOrFail($request->customer_id);
 
-        $deletedCount = BookCustomer::where('customer_id', $request->customer_id)
-            ->where('book_id', $request->book_id)
-            ->delete();
+            // Detach the rating
+            $customer->ratedBooks()->detach($request->book_id);
 
-        return ResponseHelper::success('تم حذف التقييم بنجاح');
-
-    } catch (\Exception $e) {
-
-        return ResponseHelper::failed('حدث خطأ أثناء حذف التقييم', 500);
+            return ResponseHelper::success('تم حذف التقييم بنجاح');
+        } catch (\Exception $e) {
+            return ResponseHelper::failed('حدث خطأ أثناء حذف التقييم', 500);
+        }
     }
-}
 
+    public function getCustomerRate(Customer $customer)
+    {
 
-
-    public function getCustomerRate(Customer $customer){
-        $requests_books=BookCustomer::where('customer_id',$customer->id)->get();
-        return ResponseHelper::success('تم جلب جميع تقييم الكتب المطلوبة للعميل',RateResource::collection($requests_books    ->load(['book','customer'])
-));
+        $ratings = $this->ratingsQuery()
+            ->where('book_customer.customer_id', $customer->id)
+            ->get();
+        return ResponseHelper::success(
+            'تم جلب جميع تقييم الكتب المطلوبة للعميل',
+            RateResource::collection($ratings)
+        );
     }
 }

@@ -2,7 +2,9 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Customer;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class RateRequest extends FormRequest
@@ -12,7 +14,15 @@ class RateRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+
+    $customer = Customer::find($this->customer_id);
+    $userId = $customer->user_id;
+
+        if (!$customer) {
+            return false; // Customer doesn't exist
+        }
+        return $userId == Auth::id();
+        // return true;
     }
 
     /**
@@ -23,6 +33,8 @@ class RateRequest extends FormRequest
 
 public function rules(): array
 {
+
+
     $isDelete = $this->isMethod('delete');
 
     $rules = [
@@ -48,7 +60,7 @@ public function rules(): array
     }
 
     // For POST/PUT: require rate and check uniqueness
-    $rules['rate'] = 'required|integer|min:1|max:5';
+    $rules['rate'] = [ $this->isMethod('get') ? 'sometimes': 'required','integer|min:1|max:5'];
 
     // For POST: ensure unique combination
     if ($this->isMethod('post')) {

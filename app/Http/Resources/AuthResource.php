@@ -15,23 +15,20 @@ class AuthResource extends JsonResource
     public function toArray(Request $request): array
     {
 
- return[
-            "id" => $this->id ,
-            "name"=>$this->name,
-            "email"=>$this->email,
-            "type"=>$this->type,
+        return [
+            "id" => $this->id,
+            "name" => $this->name,
+            "email" => $this->email,
+            "type" => $this->type,
 
-
-        //    'customer' => new CustomerResource($this->whenLoaded('customer')),
-
-             // Include customer data only if loaded and user has customer
+            // Include customer data only if loaded and user has customer
             "customer" => $this->whenLoaded('customer', function () {
                 return $this->customer ? [
-                    'avatar' => asset('storage/'. ($this->customer->avatar !=null ? 'customers-avatar/'.$this->customer->avatar:  'no-image.png')),
-                    'phone'=>$this->customer->phone,
-                    'gender'=>$this->customer->gender,
-                    'DOB'=>$this->customer->DOB,
-                    'id'=>$this->customer->id
+                    'avatar' => asset('storage/' . ($this->customer->avatar != null ? 'customers-avatar/' . $this->customer->avatar :  'no-image.png')),
+                    'phone' => $this->customer->phone,
+                    'gender' => $this->customer->gender,
+                    'DOB' => $this->customer->DOB,
+                    'id' => $this->customer->id
 
 
                 ] : null;
@@ -39,6 +36,6 @@ class AuthResource extends JsonResource
 
 
 
-            ];
+        ];
     }
 }
